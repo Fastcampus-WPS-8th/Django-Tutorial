@@ -1,5 +1,5 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, Http404
+from django.shortcuts import render, get_object_or_404
 
 from .models import Question
 
@@ -26,8 +26,29 @@ def index(request):
     return render(request, 'polls/index.html', context)
 
 
+def custom_get_object_or_404(model, **kwargs):
+    try:
+        return model.objects.get(**kwargs)
+    except model.DoesNotExist:
+        raise Http404()
+
+
 def detail(request, question_id):
-    return HttpResponse("You're looking at question %s" % question_id)
+    # try-except구문 없이
+    # polls/detail.html에 해당하는 Question인스턴스를 전달해서
+    # HTML에서는 해당 Question의 question_text를 출력
+    try:
+        question = Question.objects.get(id=question_id, pub_date__isnull=False)
+    except Question.DoesNotExist:
+        raise Http404('Question does not exist')
+
+    question = get_object_or_404(Question, id=question_id, pub_date__isnull=False)
+    question = custom_get_object_or_404(Question, id=question_id)
+
+    context = {
+        'question': question,
+    }
+    return render(request, 'polls/detail.html', context)
 
 
 def results(request, question_id):
