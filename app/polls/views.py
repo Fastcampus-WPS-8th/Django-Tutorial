@@ -1,7 +1,7 @@
 from django.http import HttpResponse, Http404
 from django.shortcuts import render, get_object_or_404
 
-from .models import Question
+from .models import Question, Choice
 
 
 def index(request):
@@ -57,4 +57,38 @@ def results(request, question_id):
 
 
 def vote(request, question_id):
-    return HttpResponse("You're voting on question %s" % question_id)
+    print('request.GET:', request.GET)
+    print('request.POST:', request.POST)
+    print('requestDIR:', dir(request.POST.get))
+
+    # 선택한 Choice의 choice_text와 id값을 갖는 문자열 생성
+    # 해당 문자열을 HttpResponse로 전달
+    # ex)
+    # question_text: 걸스데이 멤버중....
+    # choice_text: 민아
+    # choice.id: 4
+    # 현재 Choice의 votes: 5
+
+    choice_id = request.POST['choice']
+    question = Question.objects.get(id=question_id)
+    choice = Choice.objects.get(id=choice_id)
+
+    # choice의 votes값을 증가시키고 DB에 저장하기
+    choice.votes += 1
+    choice.save()
+
+    question_text = question.question_text
+    choice_text = choice.choice_text
+    choice_votes = choice.votes
+
+    result = (
+        'question_text: {}\n'
+        'choice_text: {}\n'
+        'choice.id: {}\n'
+        'choice.votes: {}').format(
+        question_text,
+        choice_text,
+        choice_id,
+        choice_votes,
+    )
+    return HttpResponse(result)
