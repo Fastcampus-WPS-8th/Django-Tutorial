@@ -1,0 +1,16 @@
+<h1>{{ question.question_text }} 결과</h1>
+
+<!--
+	여기가 Question detail페이지이며, question키에 해당하는 Question인스턴스가 할당되어 있음
+	현재 Question에 속하는 Choice목록은 question.choice_set.all로 QuerySet을 얻어낼 수 있으며,
+	for구문으로 QuerySet을 순회한다
+-->
+<ul>
+{% for choice in question.choice_set.all %}
+	<!--
+		각 Loop (매 Loop의 아이템: Choice인스턴스)
+		마다 li를 만들어줌
+	-->
+	<li>{{ choice.choice_text }} (votes: {{ choice.votes }})</li>
+{% endfor %}
+</ul>
